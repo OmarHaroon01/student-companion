@@ -1,10 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt, faTag } from "@fortawesome/free-solid-svg-icons";
-
+import { Navigate } from "react-router-dom";
 function Accomodations() {
   //For Search
   const [searchText, setSearchText] = useState("");
+  const token = localStorage.getItem("userUNID");
+  
+  useEffect(() => {
+    async function fetchData() {
+      if (token) {
+        let response = await axios.post(
+          "http://localhost:8000/auth/verify-unid",
+          {
+            UNID: token,
+          }
+        );
+        if (response.data.error) {
+          localStorage.clear();
+          window.location.replace("http://localhost:3000/login");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
   function onSearchClicked(e) {
     e.preventDefault();
@@ -13,11 +37,11 @@ function Accomodations() {
     <div class="flex-grow-1">
       <div className="container">
         <div className="row">
-          <div className="col-12 d-flex align-items-center justify-content-between mx-5">
-            <span className="mx-5 h3 my-4 ">AVAILABLE ACCOMODATIONS</span>
-            <form className="d-flex me-2 w-25" onSubmit={onSearchClicked}>
+          <div className="col-12 d-flex align-items-center justify-content-between">
+            <span className="display-5  my-4 ">AVAILABLE ACCOMODATIONS</span>
+            <form className="d-flex w-25" onSubmit={onSearchClicked}>
               <input
-                className="form-control me-2"
+                className="form-control"
                 type="search"
                 value={searchText}
                 placeholder="Search"

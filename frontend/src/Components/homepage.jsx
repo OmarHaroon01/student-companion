@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-
+import { Navigate } from "react-router-dom";
 function Homepage() {
+
+  
   return (
     <div class="flex-grow-1 d-flex align-items-center justify-content-center">
       <div className="container-fluid ">
@@ -32,7 +34,7 @@ function Homepage() {
                 Your very own marketplace for trading books
               </p>
               <a href="/buy-sell-books" class="btn btn-primary">
-                Button
+                Buy/Sell Books
               </a>
             </div>
           </div>
@@ -58,7 +60,7 @@ function Homepage() {
                 Find students who are looking for a roommate
               </p>
               <a href="/accomodations" class="btn btn-primary">
-                Button
+                Find Accomodation
               </a>
             </div>
           </div>

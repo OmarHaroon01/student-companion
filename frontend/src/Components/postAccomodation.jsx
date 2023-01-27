@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
 function PostAccomodation() {
   const [location, setLocation] = useState("");
   const [locationErrorClass, setLocationErrorClass] = useState("none");
@@ -14,6 +15,30 @@ function PostAccomodation() {
 
   const [error, setError] = useState("");
   const [errorClass, setErrorClass] = useState("none");
+
+  const token = localStorage.getItem("userUNID");
+
+  useEffect(() => {
+    async function fetchData() {
+      if (token) {
+        let response = await axios.post(
+          "http://localhost:8000/auth/verify-unid",
+          {
+            UNID: token,
+          }
+        );
+        if (response.data.error) {
+          localStorage.clear();
+          window.location.replace("http://localhost:3000/login");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
   function handlePostAdClicked(e) {
     e.preventDefault();

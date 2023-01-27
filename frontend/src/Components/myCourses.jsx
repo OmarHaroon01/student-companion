@@ -1,8 +1,10 @@
 import { faCalendarDays, faClock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import TimePicker from "react-time-picker";
 import Multiselect from "multiselect-react-dropdown";
+import { Navigate } from "react-router-dom";
 
 function MyCourses() {
   const [courseTitle, setCourseTitle] = useState("");
@@ -17,8 +19,32 @@ function MyCourses() {
   const [error, setError] = useState("");
   const [errorClass, setErrorClass] = useState("none");
 
+  const token = localStorage.getItem("userUNID");
+
   async function handleSubmit(e) {
     e.preventDefault(); //stops the page from reloading
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      if (token) {
+        let response = await axios.post(
+          "http://localhost:8000/auth/verify-unid",
+          {
+            UNID: token,
+          }
+        );
+        if (response.data.error) {
+          localStorage.clear();
+          window.location.replace("http://localhost:3000/login");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
   }
 
   function handleAddCourse(e) {

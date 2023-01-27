@@ -104,7 +104,7 @@ router.post("/login", async (req, res) => {
     }
   }
 });
- 
+
 router.get("/verify-email/:verificationToken", async (req, res) => {
   const result = await UserVerification.findOne({
     where: {
@@ -185,10 +185,114 @@ router.post("/verify-unid", async (req, res) => {
     });
   } else {
     return res.json({
-      data: "Accessible",
+      data: result,
       error: "",
     });
   }
+});
+
+router.post("/forget-password", async (req, res) => {
+  const result = await Users.findOne({
+    where: {
+      email: req.body.email,
+    },
+  });
+
+  if (result == null) {
+    return res.json({
+      data: "",
+      error: "Account not found!",
+    });
+  } else {
+    if (result.password == null) {
+      return res.json({
+        data: "",
+        error: "Please login using google SignIn",
+      });
+    } else if (result.isVerified) {
+      let subject = "Account recovery";
+      let text =
+        "Please visit the following link:\n" +
+        "http://localhost:3000/reset-password/" +
+        result.userUNID;
+      mailSender(result.email, subject, text);
+      return res.json({
+        data: "Please check your email to recover your account.",
+        error: "",
+      });
+    } else {
+      return res.json({
+        data: "",
+        error: "Email not verified. Please verify first.",
+      });
+    }
+  }
+});
+
+//used to update password
+router.post("/password-update", async (req, res) => {
+  const result = await Users.findOne({
+    where: {
+      userUNID: req.body.UNID,
+    },
+  });
+
+  //Wont usually Happen because unid is always found in reset password
+  if (result == null) {
+    return res.json({
+      data: "",
+      error: "Unknown Error. Contact Admin.",
+    });
+  } else {
+    const password = await bcrypt.hash(req.body.password, 10);
+    await Users.update(
+      {
+        password: password,
+      },
+      {
+        where: {
+          userUNID: req.body.UNID,
+        },
+      }
+    );
+
+    return res.json({
+      data: "Password Successfully Updated",
+      error: "",
+    });
+  }
+});
+
+router.post("/resend-link", async (req, res) => {
+  const result = await UserVerification.findOne({
+    where: {
+      verificationToken: req.body.verificationToken,
+    },
+  });
+  if (result == null) {
+    return res.json({
+      data: "",
+      error: "Invalid verfication token.",
+    });
+  }
+  verificationToken = uuid.v4();
+  await UserVerification.create({
+    verificationToken: verificationToken,
+    expiryDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000), //24 hours valid to verify email
+    UserUNID: result.UserUNID,
+  });
+
+  const user = await Users.findOne({
+    where: {
+      UserUNID: result.UserUNID,
+    },
+  });
+  let subject = "Verify Email";
+  let text =
+    "Please visit the following link to verify your email:\n" +
+    "http://localhost:3000/email-verified/" +
+    verificationToken;
+  mailSender(user.email, subject, text);
 });
 
 module.exports = router;

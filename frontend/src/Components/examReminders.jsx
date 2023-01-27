@@ -7,9 +7,10 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import DateTimePicker from "react-datetime-picker";
-
+import { Navigate } from "react-router-dom";
 function ExamReminders() {
   const [courseTitle, setCourseTitle] = useState("");
   const [courseTitleErrorClass, setCourseTitleErrorClass] = useState("none");
@@ -21,6 +22,8 @@ function ExamReminders() {
   const [error, setError] = useState("");
   const [errorClass, setErrorClass] = useState("none");
 
+  const token = localStorage.getItem("userUNID");
+
 
   const [value, onChange] = useState(new Date());
 
@@ -30,6 +33,26 @@ function ExamReminders() {
     console.log(value);
   }
 
+  useEffect(() => {
+    async function fetchData() {
+      if (token) {
+        let response = await axios.post(
+          "http://localhost:8000/auth/verify-unid",
+          {
+            UNID: token,
+          }
+        );
+        if (response.data.error) {
+          localStorage.clear();
+          window.location.replace("http://localhost:3000/login");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
   function handleAddCourse(e) {
     e.preventDefault(); //stops the page from reloading

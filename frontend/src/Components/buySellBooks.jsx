@@ -1,9 +1,31 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
 function BuySellBooks() {
   //For Search
   const [searchText, setSearchText] = useState("");
-
+  const token = localStorage.getItem("userUNID");
+  
+  useEffect(() => {
+    async function fetchData() {
+      if (token) {
+        let response = await axios.post(
+          "http://localhost:8000/auth/verify-unid",
+          {
+            UNID: token,
+          }
+        );
+        if (response.data.error) {
+          localStorage.clear();
+          window.location.replace("http://localhost:3000/login");
+        }
+      }
+    }
+    fetchData();
+  }, []);
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
   function onSearchClicked(e) {
     e.preventDefault();
   }
@@ -12,7 +34,7 @@ function BuySellBooks() {
       <div className="container">
         <div className="row">
           <div className="col-12 d-flex align-items-center justify-content-between mx-5">
-            <span className="mx-5 h1 my-4 ">BUY BOOKS</span>
+            <span className="mx-5 display-4  my-4 ">BUY BOOKS</span>
             <form className="d-flex me-2 w-25" onSubmit={onSearchClicked}>
               <input
                 className="form-control me-2"

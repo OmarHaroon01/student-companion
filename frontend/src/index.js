@@ -17,6 +17,9 @@ import PostBookAd from "./Components/postBookAd";
 import Accomodations from "./Components/accomodation";
 import PostAccomodation from "./Components/postAccomodation";
 import EmailVerified from "./Components/emailVerified";
+import Dashboard from "./Components/dashboard";
+import ForgetPassword from "./Components/forgetPassword";
+import ResetPassword from "./Components/resetPassword";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -34,6 +37,9 @@ root.render(
         <Route path="/post-book-ad" element={<PostBookAd />} />
         <Route path="/accomodations" element={<Accomodations />} />
         <Route path="/post-accomodation" element={<PostAccomodation />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/reset-password/:id" element={<ResetPassword />} />
         <Route
           path="/email-verified/:verificationToken"
           element={<EmailVerified />}
